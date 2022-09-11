@@ -32,7 +32,7 @@ function execSQLQuery(sqlQry, res){
         console.log('query executada!');
     });
 }
-
+//------------------------------------------Tabela customers----------------//
 //mostrar clientes
 app.get('/customers', (req, res) => {
     execSQLQuery('SELECT * FROM customers', res);
@@ -70,6 +70,7 @@ app.patch('/customers/:id?', (req, res) => {
     execSQLQuery(`UPDATE customers SET customers.table = ${table} WHERE customers.ID=${id}`, res);
 })
 
+//----------------------------------------------tabela ITEMS-----------------------------------------//
 //mostrar itens
 app.get('/items', (req, res) => {
   execSQLQuery('SELECT * FROM items', res);
@@ -95,4 +96,38 @@ app.patch('/price/:id?', (req, res) => {
 //deletar um item
 app.delete('/items/:id?', (req, res) =>{
   execSQLQuery('DELETE FROM items WHERE id=' + parseInt(req.params.id), res);
+})
+
+//------------------------------Tabela menus-------------------//
+
+//mostrar cardapio
+app.get('/menus', (req, res) => {
+  execSQLQuery('SELECT * FROM menus', res);
+})
+
+//adicionar item cardapio
+app.post('/menus', (req, res) => {
+  const users_id = req.body.users_id;
+  const title = req.body.title.substring(0, 255);
+  const description = req.body.description.substring(0, 1000);
+  execSQLQuery(`insert into menus(title, description, users_id) values ('${title}', '${description}', ${users_id});`, res);
+});
+
+//update titulo de item no cardapio
+app.patch('/menus_title/:id?', (req, res) => {
+  const id = parseInt(req.params.id);
+  const title = req.body.title;
+  execSQLQuery(`UPDATE menus SET menus.title = '${title}' WHERE menus.id=${id}`, res);
+})
+
+//update descricao de item no cardapio
+app.patch('/menus_description/:id?', (req, res) => {
+  const id = parseInt(req.params.id);
+  const description = req.body.description;
+  execSQLQuery(`UPDATE menus SET menus.description = '${description}' WHERE menus.id=${id}`, res);
+})
+
+//deletar um item do cardapio
+app.delete('/menus/:id?', (req, res) =>{
+  execSQLQuery('DELETE FROM menus WHERE id=' + parseInt(req.params.id), res);
 })
