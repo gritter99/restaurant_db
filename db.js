@@ -15,8 +15,8 @@ async function select_customers(){
 
 async function insert_customer(customer){
   const conn = await connect();
-  const sql = 'insert into customer(customer_id, customer_table) values (?, ?)';
-  const values = [customer.customer_id, customer.customer_table];
+  const sql = 'insert into customer(customer_table) values (?)';
+  const values = [customer.customer_table];
   return await conn.query(sql, values);
 }
 
@@ -25,8 +25,6 @@ async function delete_customer(id){
   const sql = 'delete from customer where customer_id = ?;';
   return await conn.query(sql, [id]);
 }
-
-connect();
 
 module.exports= {select_customers, insert_customer, delete_customer};
 
