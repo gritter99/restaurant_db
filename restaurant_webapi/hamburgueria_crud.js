@@ -53,7 +53,7 @@ app.get('/table/:table?', (req, res) => {
 })
 
 //deletar um cliente
-app.delete('/customers/:id?', (req, res) =>{
+app.delete('/del_customers/:id?', (req, res) =>{
     execSQLQuery('DELETE FROM customers WHERE id=' + parseInt(req.params.id), res);
 })
 
@@ -94,7 +94,7 @@ app.patch('/price/:id?', (req, res) => {
 })
 
 //deletar um item
-app.delete('/items/:id?', (req, res) =>{
+app.delete('/del_items/:id?', (req, res) =>{
   execSQLQuery('DELETE FROM items WHERE id=' + parseInt(req.params.id), res);
 })
 
@@ -128,7 +128,7 @@ app.patch('/menus_description/:id?', (req, res) => {
 })
 
 //deletar um item do cardapio
-app.delete('/menus/:id?', (req, res) =>{
+app.delete('/del_menus/:id?', (req, res) =>{
   execSQLQuery('DELETE FROM menus WHERE id=' + parseInt(req.params.id), res);
 })
 
@@ -155,6 +155,88 @@ app.patch('/status/:id?', (req, res) => {
 })
 
 //deletar um item da tabela pedidos
-app.delete('/orders/:id?', (req, res) =>{
+app.delete('/del_orders/:id?', (req, res) =>{
   execSQLQuery('DELETE FROM hamburgueria.orders WHERE id=' + parseInt(req.params.id), res);
+})
+
+//------------------------------CRUD Tabela orders_has_items-------------------//
+
+app.get('/orders_list', (req, res) => {
+  execSQLQuery('SELECT * FROM hamburgueria.orders_has_items', res);
+})
+
+//adicionar item na lista de pedidos
+app.post('/orders', (req, res) => {
+  const items_id = req.body.customers_id;
+  const orders_id = req.body.orders_id;
+  execSQLQuery(`insert into hamburgueria.orders_has_items(orders_id, items_id) values (${orders_id}, ${items_id});`, res);
+});
+
+//update item do pedido
+app.patch('/update_item_pedido/:id?', (req, res) => {
+  const id = parseInt(req.params.id);
+  const items_id = req.body.items_id;
+  execSQLQuery(`UPDATE hamburgueria.orders_has_items SET hamburgueria.orders_has_items.items_id = ${items_id} WHERE hamburgueria.orders_has_items.orders_id=${id}`, res);
+})
+
+app.delete('/del_orders_has_item/:id?', (req, res) =>{
+  execSQLQuery('DELETE FROM hamburgueria.orders_has_items WHERE id=' + parseInt(req.params.id), res);
+})
+
+//------------------------------CRUD Tabela users-------------------//
+
+//select users (garcom ou admin)
+app.get('/users', (req, res) => {
+  execSQLQuery('SELECT * FROM hamburgueria.users', res);
+})
+
+//adicionar user
+app.post('/add_user', (req, res) => {
+  const role = req.body.role.substring(0, 20);
+  const name = req.body.name.substring(0, 200);
+  const password = req.body.password.substring(0, 255);
+  const email = req.body.email.substring(0, 200);
+  execSQLQuery(`insert into users(name, email, password, role) values ('${name}', '${email}', '${password}', '${role}');`, res);
+});
+
+//update user
+app.patch('/update_user/:id?', (req, res) => {
+  const id = parseInt(req.params.id);
+  const role = req.body.role.substring(0, 20);
+  const name = req.body.name.substring(0, 200);
+  const password = req.body.password.substring(0, 255);
+  const email = req.body.email.substring(0, 200);
+  execSQLQuery(`UPDATE hamburgueria.users SET hamburgueria.users.name = '${name}', hamburgueria.users.email = '${email}', hamburgueria.users.password = '${password}', hamburgueria.users.role = '${role}' WHERE hamburgueria.users.id=${id};`, res);
+});
+
+app.delete('/del_user/:id?', (req, res) =>{
+  execSQLQuery('DELETE FROM hamburgueria.users WHERE id=' + parseInt(req.params.id), res);
+})
+
+//----------------- dados da mesa -------------//
+
+//pegar a conta total da mesa
+app.get('/table_total_payment', (req, res) => {
+  execSQLQuery(`SELECT hamburgueria.customers.table as mesa, sum(hamburgueria.items.price) as total_a_pagar
+  FROM hamburgueria.orders
+  INNER JOIN hamburgueria.customers
+  ON hamburgueria.orders.customers_id = hamburgueria.customers.id
+  inner join hamburgueria.orders_has_items
+  on hamburgueria.orders.id = hamburgueria.orders_has_items.orders_id
+  inner join hamburgueria.items
+  on hamburgueria.items.id = hamburgueria.orders_has_items.items_id
+  group by mesa;`, res);
+})
+
+//o que cada pessoa pediu
+app.get('/individual_orders', (req, res) => {
+  execSQLQuery(`SELECT hamburgueria.customers.id as pessoa, hamburgueria.customers.table as mesa, hamburgueria.items.title as pedido, hamburgueria.orders.id as order_id
+  FROM hamburgueria.orders
+  INNER JOIN hamburgueria.customers
+  ON hamburgueria.orders.customers_id = hamburgueria.customers.id
+  inner join hamburgueria.orders_has_items
+  on hamburgueria.orders.id = hamburgueria.orders_has_items.orders_id
+  inner join hamburgueria.items
+  on hamburgueria.items.id = hamburgueria.orders_has_items.items_id
+  order by mesa;`, res);
 })
