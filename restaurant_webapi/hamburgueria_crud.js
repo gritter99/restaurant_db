@@ -32,7 +32,7 @@ function execSQLQuery(sqlQry, res){
         console.log('query executada!');
     });
 }
-//------------------------------------------Tabela customers----------------//
+//------------------------------------------CRUD Tabela customers----------------//
 //mostrar clientes
 app.get('/customers', (req, res) => {
     execSQLQuery('SELECT * FROM customers', res);
@@ -70,7 +70,7 @@ app.patch('/customers/:id?', (req, res) => {
     execSQLQuery(`UPDATE customers SET customers.table = ${table} WHERE customers.ID=${id}`, res);
 })
 
-//----------------------------------------------tabela ITEMS-----------------------------------------//
+//---------------------------------------------- CRUD tabela items-----------------------------------------//
 //mostrar itens
 app.get('/items', (req, res) => {
   execSQLQuery('SELECT * FROM items', res);
@@ -98,7 +98,7 @@ app.delete('/items/:id?', (req, res) =>{
   execSQLQuery('DELETE FROM items WHERE id=' + parseInt(req.params.id), res);
 })
 
-//------------------------------Tabela menus-------------------//
+//------------------------------CRUD Tabela menus-------------------//
 
 //mostrar cardapio
 app.get('/menus', (req, res) => {
@@ -130,4 +130,31 @@ app.patch('/menus_description/:id?', (req, res) => {
 //deletar um item do cardapio
 app.delete('/menus/:id?', (req, res) =>{
   execSQLQuery('DELETE FROM menus WHERE id=' + parseInt(req.params.id), res);
+})
+
+//------------------------------CRUD Tabela orders-------------------//
+
+//mostrar pedidos
+app.get('/orders', (req, res) => {
+  execSQLQuery('SELECT * FROM hamburgueria.orders', res);
+})
+
+//adicionar pedido
+app.post('/orders', (req, res) => {
+  const users_id = req.body.users_id;
+  const status = req.body.status;
+  const customers_id = req.body.customers_id;
+  execSQLQuery(`insert into hamburgueria.orders(status, customers_id, users_id) values (${status}, ${customers_id}, ${users_id});`, res);
+});
+
+//update status do pedido
+app.patch('/status/:id?', (req, res) => {
+  const id = parseInt(req.params.id);
+  const status = req.body.status;
+  execSQLQuery(`UPDATE hamburgueria.orders SET hamburgueria.orders.status = ${status} WHERE hamburgueria.orders.id=${id}`, res);
+})
+
+//deletar um item da tabela pedidos
+app.delete('/orders/:id?', (req, res) =>{
+  execSQLQuery('DELETE FROM hamburgueria.orders WHERE id=' + parseInt(req.params.id), res);
 })
