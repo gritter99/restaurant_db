@@ -13,7 +13,7 @@ app.use(bodyparser.json());
 //inicia o servidor
 app.listen(port, ()=>console.log('api funcionando!'));
 
-//criar listagem de clientes
+//criar a query e a conexão para o banco de dados (encerrando a conexão depois de chamar a query)
 function execSQLQuery(sqlQry, res){
     const connection = mysql.createConnection({
       host     : 'localhost',
